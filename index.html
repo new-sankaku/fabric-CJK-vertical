@@ -1,26 +1,249 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/21.6.16/i18next.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next-browser-languagedetector/6.1.4/i18nextBrowserLanguageDetector.min.js"></script>
+  <script src="VerticalTextbox.js"></script>
+  <script src="Canvas.js"></script>
+
+  <title>Vite App</title>
+
   <style>
-    @font-face {
-      font-family: gothic;
-      src: url(/Sawarabi_Gothic/SawarabiGothic-Regular.ttf);
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
     }
-    html {
-      font-family: gothic;
+
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+
+    #vtxtControlPanel {
+      padding: 5px;
+      background-color: #f8f8f8;
+      border-right: 1px solid #e0e0e0;
+      width: 250px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    #canvasContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 5px;
+      box-sizing: border-box;
+      background-color: #ffffff;
+    }
+
+    canvas {
+      border: 1px dashed #ccc;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .vtxtSettingRow {
+      margin-bottom: 6px;
+    }
+
+    .vtxtSettingRow label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .vtxtSettingRow input[type="range"],
+    .vtxtSettingRow select,
+    .vtxtSettingRow input[type="color"] {
+      width: 100%;
+      padding: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .vtxtSettingRow input[type="checkbox"] {
+      margin-right: 5px;
+    }
+
+    .align-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+
+    .align-button {
+      background: none;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      padding: 5px;
+      flex: 1;
+      margin: 0 2px;
+      border-radius: 4px;
+    }
+
+    .align-button.selected {
+      background-color: #e0e0e0;
+    }
+
+    .material-icons {
+      font-size: 18px;
+    }
+
+    #ButtonFlip,
+    #vtxtAddTextButton,
+    #addGradientButton,
+    #addShadowButton {
+      display: block;
+      width: 100%;
+      padding: 4px;
+      margin: 5px 0;
+      font-size: 15px;
+      cursor: pointer;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #languageSelector {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 5px;
+    }
+
+    .langButton {
+      padding: 5px 10px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .langButton.active {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+
+      #vtxtControlPanel {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+      }
+
+      #canvasContainer {
+        padding: 10px;
+      }
     }
   </style>
-  <title>Vite App</title>
 </head>
 
 <body>
-  <button id="ButtonFlip">Flip</button>
-  <canvas id="c" width="1500" height="700"></canvas>
-  <script type="module" src="/main.js"></script>
+  <div id="languageSelector">
+    <button class="langButton" data-lang="ja">日本語</button>
+    <button class="langButton" data-lang="en">English</button>
+    <button class="langButton" data-lang="zh">中文</button>
+    <button class="langButton" data-lang="ko">한국어</button>
+  </div>
+
+  <div id="container">
+    <div id="vtxtControlPanel">
+      <div class="vtxtSettingRow">
+        <label for="fontSizeSlider"><span data-i18n="fontSize"></span>: <span id="fontSizeSliderValue">40</span></label>
+        <input type="range" id="fontSizeSlider" min="10" max="300" value="40" />
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label for="vtxtLineHeightSlider"><span data-i18n="lineHeight"></span>: <span id="vtxtLineHeightSliderValue">1</span></label>
+        <input type="range" id="vtxtLineHeightSlider" min="0.5" max="2" step="0.1" value="1" />
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label for="vtxtCharSpacingSlider"><span data-i18n="charSpacing"></span>: <span id="vtxtCharSpacingSliderValue">0.1</span></label>
+        <input type="range" id="vtxtCharSpacingSlider" min="0" max="0.5" step="0.05" value="0.1" />
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label>
+          <input type="checkbox" id="vtxtBoldCheckbox" /> <span data-i18n="bold"></span>
+        </label>
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label>
+          <input type="checkbox" id="vtxtItalicCheckbox" /> <span data-i18n="italic"></span>
+        </label>
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label for="fontSelector"><span data-i18n="font"></span>:</label>
+        <select id="fontSelector">
+          <option value="MS Mincho, ＭＳ 明朝, serif">ＭＳ 明朝</option>
+          <option value="MS Gothic, ＭＳ ゴシック, sans-serif">ＭＳ ゴシック</option>
+        </select>
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label for="textColorPicker"><span data-i18n="textColor"></span>:</label>
+        <input type="color" id="textColorPicker" value="#000000">
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label for="textOutlineColorPicker"><span data-i18n="outlineColor"></span>:</label>
+        <input type="color" id="textOutlineColorPicker" value="#000000">
+      </div>
+      
+      <div class="vtxtSettingRow">
+        <label for="fontStrokeWidthSlider"><span data-i18n="outlineSize"></span>: <span id="fontStrokeWidthSliderValue">0</span></label>
+        <input type="range" id="fontStrokeWidthSlider" min="0" max="5" step="0.1" value="0" />
+      </div>
+
+      <div class="vtxtSettingRow">
+        <label><span data-i18n="verticalAlignment"></span>:</label>
+        <div class="align-buttons">
+          <button id="align-top" class="align-button selected" data-align-vertical="top">
+            <i class="material-icons">vertical_align_top</i>
+          </button>
+          <button id="align-middle" class="align-button" data-align-vertical="middle">
+            <i class="material-icons">vertical_align_center</i>
+          </button>
+          <button id="align-bottom" class="align-button" data-align-vertical="bottom">
+            <i class="material-icons">vertical_align_bottom</i>
+          </button>
+        </div>
+      </div>
+
+      <button id="addGradientButton" data-i18n="applyGradient"></button>
+      <button id="addShadowButton" data-i18n="applyShadow"></button>
+      <button id="ButtonFlip" data-i18n="flip"></button>
+    </div>
+
+    <div id="canvasContainer">
+      <canvas id="c" width="750" height="900"></canvas>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script src="i18n-config.js"></script>
 </body>
 
 </html>
