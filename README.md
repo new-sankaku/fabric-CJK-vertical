@@ -8,4 +8,4 @@ The following functions work, but the display will shift as you operate them.
 The following functions do not work:
  Flip
  
-![image](https://github.com/user-attachments/assets/945f534c-db43-475e-9443-6c7a357c2403)
+![image](https://github.com/user-attachments/assets/f3ec3741-6a45-49b1-aee4-48df49b7bbd2)
