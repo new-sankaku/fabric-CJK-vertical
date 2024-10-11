@@ -13,4 +13,4 @@ Currently, the following issues remain.
 - Gradients don't work.
 
  
-![image](https://github.com/user-attachments/assets/f3ec3741-6a45-49b1-aee4-48df49b7bbd2)
+![image](https://github.com/user-attachments/assets/f9a9c5f3-b300-4898-8800-1b7fff6a47c0)
