@@ -1,6 +1,6 @@
 const canvas = new fabric.Canvas('c');
 const btnFlip = document.getElementById('ButtonFlip');
-const text = 'Hello\nこんにちは\n안녕하세요\n你好';
+const text = 'new';
 
 let style = {
   "fill": "#292929",
@@ -8,8 +8,8 @@ let style = {
   "fontSize": 50,
   "left": 100,
   "top": 50,
-  "width": 100,
-  "height": 100
+  "width": 50,
+  "height": 50
 };
 
 const cjkText = new VerticalTextbox(text, style);
